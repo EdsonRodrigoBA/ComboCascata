@@ -1,0 +1,67 @@
+﻿
+@model ProjetoArtigos.Models.ClienteViewModel
+<div class="container-fluid">
+    <h1> Combobox em Cascata</h1>
+    <div class="row form-group">
+
+        <div class="col-md-6 col-lg-6 col-sm-6">
+            <label class="control-label">Estado</label>
+
+            <select name="id_estado" id="id_estado" class="form-control" asp-items="ViewBag.ID_ESTADO">
+                <option>Selecione o Estado</option>
+            </select>
+        </div>
+        <div class="col-md-6 col-lg-6 col-sm-6 id=" divicidadeok"">
+
+            @Html.Label("Cidade", "Cidade:", new { @class = "control-label" })
+            @Html.DropDownListFor(model => model.id_cidade, new SelectList(Enumerable.Empty<SelectListItem>(), "id_cidade", "descricao"),
+
+                "Selecione o estado", new { @class = "form-control", @id = "cbcidade" })
+
+            <div id="estadocarregando" style="display: none" class="head-iconCarregando">
+                <i class="fas fa-spin fa-spinner fa-2x "> </i><spam style="color: #20247b" class="text-lg text-bold"> Carregando Cidades..</spam>
+            </div>
+            <div id="estadosemcidade" style="display: none">Sem cidades cadastradas.</div>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+    <script>
+         $('#id_estado').change(function () {
+             var idestado = $('#id_estado').val();
+            if (idestado > 0) {
+                $('#id_estado').prop('disabled', true);
+                  $('#cbcidade').hide();
+                $('#estadocarregando').show();
+
+                $.post('@Url.Action("BuscarCidades_Estados", "Cadastros")', { 'id': idestado }, function (data) {
+
+
+                    if (data.length > 0) {
+                        $('#estadocarregando').hide();
+                        $('#cbcidade').empty();
+                        $('#cbcidade').show();
+
+
+                        for (var i = 0; i < data.length; i++) {
+                            $('#cbcidade').append('<option value="' + data[i].id_Cidade + '">' + data[i].descricao + '</option>');
+                        }
+                    } else {
+                        $('#cbcidade').empty();
+                        $('#estadocarregando').hide();
+                         $('#cbcidade').show();
+                         $('#cbcidade').append('<option value="' + -1 + '">' + 'Estado não tem cidade cadastrada' + '</option>');
+                    }
+                    $('#id_estado').prop('disabled', false);
+                })
+            }
+        });
+    </script>
+
+}
